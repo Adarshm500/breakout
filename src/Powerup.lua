@@ -36,13 +36,14 @@ function Powerup:collides(target)
         return false
     end 
 
-
     return true
 end
 
 function Powerup:reset()
+    self.x = math.random(0, VIRTUAL_WIDTH)
     self.y = math.random(0, 50)
     self.dy = 0
+    print("reset")
 
     self.inPlay = false
     self.PowerupInPlay = false
@@ -50,7 +51,7 @@ end
 
 function Powerup:update(dt)
     self.y = self.y + self.dy * dt
-    print("powerup.y:" ..self.y)
+    print("powerup:" ..self.y)
 end
 
 function Powerup:render()

@@ -138,6 +138,6 @@ function GenerateQuadsPowerups(atlas)
         x = x + 16
         counter = counter + 1
 
-        return quads
     end
+    return quads
 end

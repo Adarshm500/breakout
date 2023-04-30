@@ -16,6 +16,7 @@
 
 PlayState = Class{__includes = BaseState}
 
+
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
@@ -34,6 +35,11 @@ function PlayState:enter(params)
     -- give ball random starting velocity
     self.ball.dx = math.random(-200, 200)
     self.ball.dy = math.random(-50, -60)
+
+    -- init new powerup
+    self.powerup = Powerup()
+    self.powerup.x = math.random(0, VIRTUAL_WIDTH)
+    self.powerup.y = math.random(0,50)
 end
 
 function PlayState:update(dt)
@@ -53,6 +59,18 @@ function PlayState:update(dt)
     -- update positions based on velocity
     self.paddle:update(dt)
     self.ball:update(dt)
+
+    brickTimer = self:timeElapsed(self.powerup.powerupInPlay)
+    print(brickTimer)
+
+    if brickTimer >= 1 then
+        self.powerup.inPlay = true 
+        self.powerup:update(dt)
+        self.powerup.dy = 40;
+        self.powerup.powerupInPlay = true
+    end
+
+    self:timeElapsed(self.powerup.powerupInPlay)
 
     if self.ball:collides(self.paddle) then
         -- raise ball above paddle in case it goes below it, then reverse dy
@@ -74,6 +92,13 @@ function PlayState:update(dt)
 
         gSounds['paddle-hit']:play()
     end
+
+    -- detect collision of powerup with the paddle
+    if self.powerup:collides(self.paddle) then
+        gSounds['powerup']:play()
+        self.powerup:reset()
+    end
+
 
     -- detect collision across all bricks with the ball
     for k, brick in pairs(self.bricks) do
@@ -187,6 +212,11 @@ function PlayState:update(dt)
         end
     end
 
+    -- if powerup goes below bounds, revert to serve state and decrease health
+    if self.powerup.y >= VIRTUAL_HEIGHT then
+        self.powerup:reset()
+    end
+
     -- for rendering particle systems
     for k, brick in pairs(self.bricks) do
         brick:update(dt)
@@ -211,6 +241,11 @@ function PlayState:render()
     self.paddle:render()
     self.ball:render()
 
+    brickTimer = self:timeElapsed()
+    if brickTimer >= 1 then
+        self.powerup:render()
+    end
+
     renderScore(self.score)
     renderHealth(self.health)
 
@@ -229,4 +264,24 @@ function PlayState:checkVictory()
     end
 
     return true
+end
+
+function PlayState:timeElapsed(inPlay)
+    -- locals to find time elapsed after last brick hit
+    -- initialize minimum timer
+    if not inPlay then
+        local minTimer = math.huge
+        -- initialize variable to store brick with minimum timer
+        local minTimerBrick
+        -- iterate over bricks table to find time elapsedafter last brick hit
+        for i, brick in ipairs(self.bricks) do
+        -- if current brick's timer is less than current minimum timer value
+            if brick.timer < minTimer then
+                -- update minimum timer value and minimum timer brick
+                minTimer = brick.timer
+                minTimerBrick = brick
+            end
+        end
+        return minTimerBrick.timer
+    end
 end

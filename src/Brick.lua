@@ -88,6 +88,7 @@ end
     changing its color otherwise.
 ]]
 function Brick:hit()
+    self.timer = 0
     -- set the particle system to interpolate between two colors; in this case, we give
     -- it our self.color but with varying alpha; brighter for higher tiers, fading to 0
     -- over the particle's lifetime (the second color)
