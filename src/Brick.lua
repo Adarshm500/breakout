@@ -63,6 +63,9 @@ function Brick:init(x, y)
     -- used to determine whether this brick should be rendered
     self.inPlay = true
 
+    -- add a timer to track the last brick hit
+    self.timer = 0
+
     -- particle system belonging to the brick, emitted on hit
     self.psystem = love.graphics.newParticleSystem(gTextures['particle'], 64)
 
@@ -130,6 +133,7 @@ function Brick:hit()
 end
 
 function Brick:update(dt)
+    self.timer = self.timer + dt
     self.psystem:update(dt)
 end
 
