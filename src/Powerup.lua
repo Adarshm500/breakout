@@ -60,3 +60,25 @@ function Powerup:render()
         love.graphics.draw(gTextures['main'],gFrames['powerups'][9], self.x, self.y)
     end
 end
+
+--[[
+1. the powerup should be triggered if no brick is hit till 4 seconds
+2. the powerup should be on the screen untill it collides with the paddle or is beyond the screen
+3. if the powerup collides with the paddle or goes beyond the screen then it should reset
+
+The problem:
+1. the powerup is not visible when the ball hits the brick after it is on screen
+2. It is because the timer gets reset to 0
+
+The Solution:
+1. the timer should stop until the powerup is off the screen
+    1.1 more option in the timeElapsed function
+
+2. the timer should not be triggered if the Powerup is on the screen
+    2.1 we can go to brick collision for this in the update function
+
+Note :
+1. first make sure that the powerupInPlay variable is true when the powerup is on screen that is it has been triggered and has not yet touched the paddle 
+        1.1 if it touches the paddle then it should wait for timer to again go beyond 4 seconds to be true
+
+]]

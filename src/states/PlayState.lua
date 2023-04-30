@@ -63,7 +63,7 @@ function PlayState:update(dt)
     brickTimer = self:timeElapsed(self.powerup.powerupInPlay)
     print(brickTimer)
 
-    if brickTimer >= 1 then
+    if brickTimer >= 3 then
         self.powerup.inPlay = true 
         self.powerup:update(dt)
         self.powerup.dy = 40;
@@ -242,7 +242,7 @@ function PlayState:render()
     self.ball:render()
 
     brickTimer = self:timeElapsed()
-    if brickTimer >= 1 then
+    if brickTimer >= 3 then
         self.powerup:render()
     end
 
@@ -272,16 +272,16 @@ function PlayState:timeElapsed(inPlay)
     local minTimer = math.huge
     -- initialize variable to store brick with minimum timer
     local minTimerBrick
+    local lastTimeElapsed
     -- iterate over bricks table to find time elapsedafter last brick hit
     for i, brick in ipairs(self.bricks) do
     -- if current brick's timer is less than current minimum timer value
         if brick.timer < minTimer then
             -- update minimum timer value and minimum timer brick
-            if not inPlay then
-                minTimer = brick.timer
-                minTimerBrick = brick
-            end
+            minTimer = brick.timer
+            minTimerBrick = brick
         end
+        lastTimeElapsed = minTimerBrick
     end
     return minTimerBrick.timer
 end
