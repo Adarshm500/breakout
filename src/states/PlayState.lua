@@ -269,19 +269,19 @@ end
 function PlayState:timeElapsed(inPlay)
     -- locals to find time elapsed after last brick hit
     -- initialize minimum timer
-    if not inPlay then
-        local minTimer = math.huge
-        -- initialize variable to store brick with minimum timer
-        local minTimerBrick
-        -- iterate over bricks table to find time elapsedafter last brick hit
-        for i, brick in ipairs(self.bricks) do
-        -- if current brick's timer is less than current minimum timer value
-            if brick.timer < minTimer then
-                -- update minimum timer value and minimum timer brick
+    local minTimer = math.huge
+    -- initialize variable to store brick with minimum timer
+    local minTimerBrick
+    -- iterate over bricks table to find time elapsedafter last brick hit
+    for i, brick in ipairs(self.bricks) do
+    -- if current brick's timer is less than current minimum timer value
+        if brick.timer < minTimer then
+            -- update minimum timer value and minimum timer brick
+            if not inPlay then
                 minTimer = brick.timer
                 minTimerBrick = brick
             end
         end
-        return minTimerBrick.timer
     end
+    return minTimerBrick.timer
 end
