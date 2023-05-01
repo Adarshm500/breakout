@@ -28,6 +28,9 @@ function Ball:init(skin)
     -- this will effectively be the color of our ball, and we will index
     -- our table of Quads relating to the global block texture using this
     self.skin = skin
+
+    -- store the number of balls to render
+    self.ballCount = 0
 end
 
 --[[

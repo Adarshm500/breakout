@@ -106,32 +106,23 @@ function PlayState:update(dt)
         gSounds['powerup']:play()
 
         -- If the powerup is hit then paddle has power
-        self.paddle.power = true
+        self.ball.ballCount = self.ball.ballCount + 2
 
         self.brick.timer = 0
         self.powerup:reset()
     end
 
-    if self.paddle.power then
-        self.powerBalls[1]:update(dt)
-        self.powerBalls[2]:update(dt)
-    end
-
-    -- if the balls were once there and now out of bound then respawn then
-    print(self.powerBalls[1].y)
-    if self.powerBalls[1].y >= VIRTUAL_HEIGHT and self.powerBalls[2].y >= VIRTUAL_HEIGHT and self.paddle.power == true then
-        for i = 1,2 do
-            self.powerBalls[i].x = VIRTUAL_WIDTH / 2
-            self.powerBalls[i].y = VIRTUAL_HEIGHT - 48
-    
-            -- give new balls random initial velocity
-            if i % 2 == 0 then
-                self.powerBalls[i].dx = math.random(-200, 0)
-            end
-            self.powerBalls[i].dx = math.random(0, 200)
-            self.powerBalls[i].dy = math.random(-50, -60)
+    if self.ball.ballCount >= 2 then
+        for i = 1,self.ball.ballCount do
+            self.powerBalls[i]:update(dt)
         end
     end
+
+    -- -- if the balls were once there and now out of bound then respawn then
+    -- print(self.powerBalls[1].y)
+    -- if self.powerBalls[1].y >= VIRTUAL_HEIGHT and self.powerBalls[2].y >= VIRTUAL_HEIGHT and self.paddle.power == true then
+
+    -- end
 
     -----------------------------------------------
     --check hitting of ball with Brick
@@ -161,14 +152,14 @@ function PlayState:update(dt)
         end
     end
 
-    -- check if two balls are past the below bound so that we can initiate a new powerup
-    -- if at least two are in the air then halt it
-    if ((self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or
-    (self.ball.y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or 
-    (self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.ball.y <= VIRTUAL_HEIGHT)) and self.paddle.power == true then
-        -- prevent initiating any powerup
-        self.brick.timer = 0
-    end
+    -- -- check if two balls are past the below bound so that we can initiate a new powerup
+    -- -- if at least two are in the air then halt it
+    -- if ((self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or
+    -- (self.ball.y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or 
+    -- (self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.ball.y <= VIRTUAL_HEIGHT)) and self.paddle.power == true then
+    --     -- prevent initiating any powerup
+    --     self.brick.timer = 0
+    -- end
 
     -- if powerup goes below bounds, reset it
     if self.powerup.y >= VIRTUAL_HEIGHT then
@@ -204,9 +195,10 @@ function PlayState:render()
 
     
     -- check for collision and render
-    if self.paddle.power then
-        self.powerBalls[1]:render()
-        self.powerBalls[2]:render()
+    if self.ball.ballCount >= 2 then
+        for i = 1,self.ball.ballCount do
+            self.powerBalls[i]:render()
+        end
     end
 
     if self.brick.timer >= 3 then
