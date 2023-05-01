@@ -62,12 +62,12 @@ PlayState = Class{__includes = BaseState}
 
         -- give new balls random initial velocity
         if i % 2 == 0 then
-            self.powerBalls[i].dx = math.random(-200, 0)
-            print("this is odd one:"..self.powerBalls[i].dx)
-        end
-        self.powerBalls[i].dx = math.random(0, 200)
-        print("this is even one:"..self.powerBalls[i].dx)
-        self.powerBalls[i].dy = math.random(-50, -60)
+            self.powerBalls[i].dx = math.random(-200, 100)
+          else
+            self.powerBalls[i].dx = math.random(-100, 200)
+          end
+          self.powerBalls[i].dy = math.random(-50, -60)
+          
     end
 
     -- init new bricks
@@ -137,15 +137,22 @@ function PlayState:update(dt)
 
             -- reset the old balls
             for i = self.lastBallCount + 1, oldBallCount do
-                self.powerBalls[i].x = VIRTUAL_WIDTH / 2
-                self.powerBalls[i].y = VIRTUAL_HEIGHT - 48
-        
-                -- give new balls random initial velocity
-                if i % 2 == 0 then
-                    self.powerBalls[i].dx = math.random(-200, 0)
+                -- check if an old ball is already on the screen, don't reset
+                if self.powerBalls[i].y < VIRTUAL_HEIGHT then
+                    goto continue
+                else
+                    self.powerBalls[i].x = VIRTUAL_WIDTH / 2
+                    self.powerBalls[i].y = VIRTUAL_HEIGHT - 48
+            
+                    -- give new balls random initial velocity
+                    if i % 2 == 0 then
+                        self.powerBalls[i].dx = math.random(-200, 100)
+                    else
+                        self.powerBalls[i].dx = math.random(-100, 200)
+                    end
+                    self.powerBalls[i].dy = math.random(-50, -60)
                 end
-                self.powerBalls[i].dx = math.random(0, 200)
-                self.powerBalls[i].dy = math.random(-50, -60)
+                ::continue::
             end
         end
 
@@ -160,12 +167,6 @@ function PlayState:update(dt)
         end
     end
 
-    -- -- if the balls were once there and now out of bound then respawn then
-    -- print(self.powerBalls[1].y)
-    -- if self.powerBalls[1].y >= VIRTUAL_HEIGHT and self.powerBalls[2].y >= VIRTUAL_HEIGHT and self.paddle.power == true then
-
-    -- end
-
     -- if ball goes below bounds, revert to serve state and decrease health
     -- update: if every ball goes below bound then 
 
@@ -179,7 +180,6 @@ function PlayState:update(dt)
             self.powerBalls[i].dy = 0
             self.powerBalls[i].dx = 0
         end
-
     end    
 
     if self.ball.y >= VIRTUAL_HEIGHT and not ballOnScreen then  
@@ -204,15 +204,6 @@ function PlayState:update(dt)
         end
     end
 
-    -- -- check if two balls are past the below bound so that we can initiate a new powerup
-    -- -- if at least two are in the air then halt it
-    -- if ((self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or
-    -- (self.ball.y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or 
-    -- (self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.ball.y <= VIRTUAL_HEIGHT)) and self.paddle.power == true then
-    --     -- prevent initiating any powerup
-    --     self.brick.timer = 0
-    -- end
-
     -- if powerup goes below bounds, reset it
     if self.powerup.y >= VIRTUAL_HEIGHT then
         self.brick.timer = 0 
@@ -227,8 +218,6 @@ function PlayState:update(dt)
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end
-
-
 end
 
 function PlayState:render()
