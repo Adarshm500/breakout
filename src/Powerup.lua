@@ -39,7 +39,7 @@ function Powerup:collides(target)
 end
 
 function Powerup:reset()
-    
+
     self.x = math.random(16, VIRTUAL_WIDTH - 16)
     self.y = math.random(0, 50)
     self.dy = 0
@@ -50,7 +50,6 @@ end
 
 function Powerup:update(dt)
     self.y = self.y + self.dy * dt
-    print("powerup:" ..self.y)
 end
 
 function Powerup:render()

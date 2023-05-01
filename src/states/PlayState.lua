@@ -16,12 +16,14 @@
 
 PlayState = Class{__includes = BaseState}
 
-
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
-]]
-function PlayState:enter(params)
+    ]]
+    function PlayState:enter(params)
+
+    -- random seeding
+    math.randomseed(os.time())
     self.paddle = params.paddle
     self.bricks = params.bricks
     self.health = params.health
@@ -49,13 +51,16 @@ function PlayState:enter(params)
     self.powerBall2.skin = math.random(7)
 
     -- new balls spawn location
-    self.powerBall1.x = VIRTUAL_WIDTH / 2 - 2
-    self.powerBall1.y = VIRTUAL_HEIGHT / 2 - 2
-    self.powerBall2.x = VIRTUAL_WIDTH / 2 - 2
-    self.powerBall2.y = VIRTUAL_HEIGHT / 2 - 2
+    self.powerBall1.x = VIRTUAL_WIDTH / 2
+    self.powerBall1.y = VIRTUAL_HEIGHT - 48
+    self.powerBall2.x = VIRTUAL_WIDTH / 2
+    self.powerBall2.y = VIRTUAL_HEIGHT - 48
 
     -- give new balls random initial velocity
-    self.powerBall1.dx = math.random(-200, 200)
+    self.powerBall1.dx = math.random(-200, 0)
+    self.powerBall1.dy = math.random(-50, -60)
+
+    self.powerBall2.dx = math.random(0, 200)
     self.powerBall2.dy = math.random(-50, -60)
 
     -- init new bricks
@@ -84,7 +89,6 @@ function PlayState:update(dt)
     -- update the Timer
     self.brick.timer = self.brick.timer + dt
     
-    print(self.powerup.inPlay)
     print(self.brick.timer)
     if self.brick.timer >= 3 then
         self.powerup.inPlay = true 
@@ -92,39 +96,24 @@ function PlayState:update(dt)
         self.powerup.dy = 40;
     end
 
-    if self.ball:collides(self.paddle) then
-        -- raise ball above paddle in case it goes below it, then reverse dy
-        self.ball.y = self.paddle.y - 8
-        self.ball.dy = -self.ball.dy
-
-        --
-        -- tweak angle of bounce based on where it hits the paddle
-        --
-
-        -- if we hit the paddle on its left side while moving left...
-        if self.ball.x < self.paddle.x + (self.paddle.width / 2) and self.paddle.dx < 0 then
-            self.ball.dx = -50 + -(8 * (self.paddle.x + self.paddle.width / 2 - self.ball.x))
-        
-        -- else if we hit the paddle on its right side while moving right...
-        elseif self.ball.x > self.paddle.x + (self.paddle.width / 2) and self.paddle.dx > 0 then
-            self.ball.dx = 50 + (8 * math.abs(self.paddle.x + self.paddle.width / 2 - self.ball.x))
-        end
-
-        gSounds['paddle-hit']:play()
-    end
+    self:checkCollision(self.ball, self.paddle)
+    self:checkCollision(self.powerBall1, self.paddle)
+    self:checkCollision(self.powerBall2, self.paddle)
 
     -- detect collision of powerup with the paddle
     if self.powerup:collides(self.paddle) then
         gSounds['powerup']:play()
-        -- If the powerup is hit the update positions of the spawned balls based on velocity
-        self.powerBall1:render()
-        self.powerBall2:render()
-        
-        self.powerBall1:update(dt)
-        self.powerBall2:update(dt)
+
+        -- If the powerup is hit then paddle has power
+        self.paddle.power = true
 
         self.brick.timer = 0
         self.powerup:reset()
+    end
+
+    if self.paddle.power then
+        self.powerBall1:update(dt)
+        self.powerBall2:update(dt)
     end
 
 
@@ -277,13 +266,13 @@ function PlayState:render()
     self.paddle:render()
     self.ball:render()
 
+    
     -- check for collision and render
-    -- detect collision of powerup with the paddle
-    -- if self.powerup:collides(self.paddle) then
-    --     -- If the powerup is hit then spawn balls
-    --     self.powerBall1:render()
-    --     self.powerBall2:render()
-    -- end
+    if self.paddle.power then
+        self.powerBall1:render()
+        self.powerBall2:render()
+    end
+
 
 
 
@@ -309,4 +298,28 @@ function PlayState:checkVictory()
     end
 
     return true
+end
+
+function PlayState:checkCollision(ball, paddle)
+    -- Check collision of ball with the paddle
+    if ball:collides(paddle) then
+        -- raise ball above paddle in case it goes below it, then reverse dy
+        ball.y = paddle.y - 8
+        ball.dy = -ball.dy
+
+        --
+        -- tweak angle of bounce based on where it hits the paddle
+        --
+
+        -- if we hit the paddle on its left side while moving left...
+        if ball.x < paddle.x + (paddle.width / 2) and paddle.dx < 0 then
+            ball.dx = -50 + -(8 * (paddle.x + paddle.width / 2 - ball.x))
+        
+        -- else if we hit the paddle on its right side while moving right...
+        elseif ball.x > paddle.x + (paddle.width / 2) and paddle.dx > 0 then
+            ball.dx = 50 + (8 * math.abs(paddle.x + paddle.width / 2 - ball.x))
+        end
+
+        gSounds['paddle-hit']:play()
+    end
 end

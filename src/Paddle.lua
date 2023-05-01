@@ -40,6 +40,9 @@ function Paddle:init(skin)
     -- the variant is which of the four paddle sizes we currently are; 2
     -- is the starting size, as the smallest is too tough to start with
     self.size = 2
+
+    -- A boolean to store if it has powerup
+    self.power = false
 end
 
 function Paddle:update(dt)
