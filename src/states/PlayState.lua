@@ -22,8 +22,6 @@ PlayState = Class{__includes = BaseState}
     ]]
     function PlayState:enter(params)
 
-    -- random seeding
-    math.randomseed(os.time())
     self.paddle = params.paddle
     self.bricks = params.bricks
     self.health = params.health
@@ -40,28 +38,31 @@ PlayState = Class{__includes = BaseState}
 
     -- init new powerup
     self.powerup = Powerup()
-    self.powerup.x = math.random(0, VIRTUAL_WIDTH)
+    self.powerup.x = math.random(self.powerup.width, VIRTUAL_WIDTH - self.powerup.width)
     self.powerup.y = math.random(0,50)
 
-    -- init two balls which will be used after powerup hit
-    self.powerBall1 = Ball()
-    self.powerBall1.skin = math.random(7)
+    -- init balls which will be used after powerup hit
+    -- table to store powerBalls
+    self.powerBalls = {}
+    for i = 1, 8 do
 
-    self.powerBall2 = Ball()
-    self.powerBall2.skin = math.random(7)
+        --init balls
+        self.powerBalls[i] = Ball()
+        self.powerBalls[i].skin = math.random(7)
 
-    -- new balls spawn location
-    self.powerBall1.x = VIRTUAL_WIDTH / 2
-    self.powerBall1.y = VIRTUAL_HEIGHT - 48
-    self.powerBall2.x = VIRTUAL_WIDTH / 2
-    self.powerBall2.y = VIRTUAL_HEIGHT - 48
+        -- new balls spawn location
+        self.powerBalls[i].x = VIRTUAL_WIDTH / 2
+        self.powerBalls[i].y = VIRTUAL_HEIGHT - 48
 
-    -- give new balls random initial velocity
-    self.powerBall1.dx = math.random(-200, 0)
-    self.powerBall1.dy = math.random(-50, -60)
-
-    self.powerBall2.dx = math.random(0, 200)
-    self.powerBall2.dy = math.random(-50, -60)
+        -- give new balls random initial velocity
+        if i % 2 == 0 then
+            self.powerBalls[i].dx = math.random(-200, 0)
+            print("this is odd one:"..self.powerBalls[i].dx)
+        end
+        self.powerBalls[i].dx = math.random(0, 200)
+        print("this is even one:"..self.powerBalls[i].dx)
+        self.powerBalls[i].dy = math.random(-50, -60)
+    end
 
     -- init new bricks
     self.brick = Brick()
@@ -97,8 +98,8 @@ function PlayState:update(dt)
     end
 
     self:checkCollision(self.ball, self.paddle)
-    self:checkCollision(self.powerBall1, self.paddle)
-    self:checkCollision(self.powerBall2, self.paddle)
+    self:checkCollision(self.powerBalls[1], self.paddle)
+    self:checkCollision(self.powerBalls[2], self.paddle)
 
     -- detect collision of powerup with the paddle
     if self.powerup:collides(self.paddle) then
@@ -112,40 +113,61 @@ function PlayState:update(dt)
     end
 
     if self.paddle.power then
-        self.powerBall1:update(dt)
-        self.powerBall2:update(dt)
+        self.powerBalls[1]:update(dt)
+        self.powerBalls[2]:update(dt)
+    end
+
+    -- if the balls were once there and now out of bound then respawn then
+    print(self.powerBalls[1].y)
+    if self.powerBalls[1].y >= VIRTUAL_HEIGHT and self.powerBalls[2].y >= VIRTUAL_HEIGHT and self.paddle.power == true then
+        for i = 1,2 do
+            self.powerBalls[i].x = VIRTUAL_WIDTH / 2
+            self.powerBalls[i].y = VIRTUAL_HEIGHT - 48
+    
+            -- give new balls random initial velocity
+            if i % 2 == 0 then
+                self.powerBalls[i].dx = math.random(-200, 0)
+            end
+            self.powerBalls[i].dx = math.random(0, 200)
+            self.powerBalls[i].dy = math.random(-50, -60)
+        end
     end
 
     -----------------------------------------------
     --check hitting of ball with Brick
-    print(self.powerBall1.y)
 
     -- if ball goes below bounds, revert to serve state and decrease health
     -- update: if every ball goes below bound then 
-    if self.ball.y >= VIRTUAL_HEIGHT then
-        if self.powerBall1.y >= VIRTUAL_HEIGHT then
-            if self.powerBall2.y >= VIRTUAL_HEIGHT then         
-                self.health = self.health - 1
-                gSounds['hurt']:play()
+    if self.ball.y >= VIRTUAL_HEIGHT and self.powerBalls[1].y >= VIRTUAL_HEIGHT and
+    self.powerBalls[2].y >= VIRTUAL_HEIGHT then      
+        self.health = self.health - 1
+        gSounds['hurt']:play()
 
-                if self.health == 0 then
-                    gStateMachine:change('game-over', {
-                        score = self.score,
-                        highScores = self.highScores
-                    })
-                else
-                    gStateMachine:change('serve', {
-                        paddle = self.paddle,
-                        bricks = self.bricks,
-                        health = self.health,
-                        score = self.score,
-                        highScores = self.highScores,
-                        level = self.level,
-                        recoverPoints = self.recoverPoints
-                    })
-                end
-            end
+        if self.health == 0 then
+            gStateMachine:change('game-over', {
+                score = self.score,
+                highScores = self.highScores
+            })
+        else
+            gStateMachine:change('serve', {
+                paddle = self.paddle,
+                bricks = self.bricks,
+                health = self.health,
+                score = self.score,
+                highScores = self.highScores,
+                level = self.level,
+                recoverPoints = self.recoverPoints
+            })
         end
+    end
+
+    -- check if two balls are past the below bound so that we can initiate a new powerup
+    -- if at least two are in the air then halt it
+    if ((self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or
+    (self.ball.y <= VIRTUAL_HEIGHT and self.powerBalls[2].y <= VIRTUAL_HEIGHT) or 
+    (self.powerBalls[1].y <= VIRTUAL_HEIGHT and self.ball.y <= VIRTUAL_HEIGHT)) and self.paddle.power == true then
+        -- prevent initiating any powerup
+        self.brick.timer = 0
     end
 
     -- if powerup goes below bounds, reset it
@@ -183,8 +205,8 @@ function PlayState:render()
     
     -- check for collision and render
     if self.paddle.power then
-        self.powerBall1:render()
-        self.powerBall2:render()
+        self.powerBalls[1]:render()
+        self.powerBalls[2]:render()
     end
 
     if self.brick.timer >= 3 then
