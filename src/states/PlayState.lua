@@ -60,17 +60,14 @@ function PlayState:update(dt)
     self.paddle:update(dt)
     self.ball:update(dt)
 
-    brickTimer = self:timeElapsed(self.powerup.powerupInPlay)
+    brickTimer = self:timeElapsed()
     print(brickTimer)
 
-    if brickTimer >= 3 then
+    if brickTimer >= 1 then
         self.powerup.inPlay = true 
         self.powerup:update(dt)
         self.powerup.dy = 40;
-        self.powerup.powerupInPlay = true
     end
-
-    self:timeElapsed(self.powerup.powerupInPlay)
 
     if self.ball:collides(self.paddle) then
         -- raise ball above paddle in case it goes below it, then reverse dy
@@ -242,7 +239,7 @@ function PlayState:render()
     self.ball:render()
 
     brickTimer = self:timeElapsed()
-    if brickTimer >= 3 then
+    if brickTimer >= 1 then
         self.powerup:render()
     end
 
@@ -266,13 +263,12 @@ function PlayState:checkVictory()
     return true
 end
 
-function PlayState:timeElapsed(inPlay)
+function PlayState:timeElapsed()
     -- locals to find time elapsed after last brick hit
     -- initialize minimum timer
     local minTimer = math.huge
     -- initialize variable to store brick with minimum timer
     local minTimerBrick
-    local lastTimeElapsed
     -- iterate over bricks table to find time elapsedafter last brick hit
     for i, brick in ipairs(self.bricks) do
     -- if current brick's timer is less than current minimum timer value
@@ -281,7 +277,6 @@ function PlayState:timeElapsed(inPlay)
             minTimer = brick.timer
             minTimerBrick = brick
         end
-        lastTimeElapsed = minTimerBrick
     end
     return minTimerBrick.timer
 end

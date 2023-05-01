@@ -87,8 +87,11 @@ end
     Triggers a hit on the brick, taking it out of play if at 0 health or
     changing its color otherwise.
 ]]
-function Brick:hit()
-    self.timer = 0
+function Brick:hit(powerupInPlay)
+    if not powerupInPlay then
+        self.timer = 0
+    end
+
     -- set the particle system to interpolate between two colors; in this case, we give
     -- it our self.color but with varying alpha; brighter for higher tiers, fading to 0
     -- over the particle's lifetime (the second color)
@@ -133,8 +136,9 @@ function Brick:hit()
     end
 end
 
-function Brick:update(dt)
+function Brick:update(dt, inPlay)
     self.timer = self.timer + dt
+
     self.psystem:update(dt)
 end
 
