@@ -48,6 +48,12 @@ function PlayState:enter(params)
     self.powerBall2 = Ball()
     self.powerBall2.skin = math.random(7)
 
+    -- new balls spawn location
+    self.powerBall1.x = VIRTUAL_WIDTH / 2 - 2
+    self.powerBall1.y = VIRTUAL_HEIGHT / 2 - 2
+    self.powerBall2.x = VIRTUAL_WIDTH / 2 - 2
+    self.powerBall2.y = VIRTUAL_HEIGHT / 2 - 2
+
     -- give new balls random initial velocity
     self.powerBall1.dx = math.random(-200, 200)
     self.powerBall2.dy = math.random(-50, -60)
