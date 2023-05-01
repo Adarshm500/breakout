@@ -117,6 +117,9 @@ function PlayState:update(dt)
     if self.powerup:collides(self.paddle) then
         gSounds['powerup']:play()
         -- If the powerup is hit the update positions of the spawned balls based on velocity
+        self.powerBall1:render()
+        self.powerBall2:render()
+        
         self.powerBall1:update(dt)
         self.powerBall2:update(dt)
 
@@ -276,11 +279,11 @@ function PlayState:render()
 
     -- check for collision and render
     -- detect collision of powerup with the paddle
-    if self.powerup:collides(self.paddle) then
-        -- If the powerup is hit then spawn balls
-        self.powerBall1:render()
-        self.powerBall2:render()
-    end
+    -- if self.powerup:collides(self.paddle) then
+    --     -- If the powerup is hit then spawn balls
+    --     self.powerBall1:render()
+    --     self.powerBall2:render()
+    -- end
 
 
 
