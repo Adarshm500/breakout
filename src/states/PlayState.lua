@@ -90,16 +90,17 @@ function PlayState:update(dt)
     -- update the Timer
     self.brick.timer = self.brick.timer + dt
     
-    print(self.brick.timer)
     if self.brick.timer >= 3 then
         self.powerup.inPlay = true 
         self.powerup:update(dt)
         self.powerup.dy = 40;
     end
 
+    -- Check for collision of balls with paddle
     self:checkCollision(self.ball, self.paddle)
-    self:checkCollision(self.powerBalls[1], self.paddle)
-    self:checkCollision(self.powerBalls[2], self.paddle)
+    for i = 1, self.ball.ballCount do
+        self:checkCollision(self.powerBalls[i], self.paddle)
+    end
 
     -- detect collision of powerup with the paddle
     if self.powerup:collides(self.paddle) then
@@ -115,6 +116,7 @@ function PlayState:update(dt)
     if self.ball.ballCount >= 2 then
         for i = 1,self.ball.ballCount do
             self.powerBalls[i]:update(dt)
+            print(i)
         end
     end
 
@@ -124,13 +126,18 @@ function PlayState:update(dt)
 
     -- end
 
-    -----------------------------------------------
-    --check hitting of ball with Brick
-
     -- if ball goes below bounds, revert to serve state and decrease health
     -- update: if every ball goes below bound then 
-    if self.ball.y >= VIRTUAL_HEIGHT and self.powerBalls[1].y >= VIRTUAL_HEIGHT and
-    self.powerBalls[2].y >= VIRTUAL_HEIGHT then      
+
+    -- check if any ball is on the screen
+    local ballOnScreen = false
+    for i = 1, self.ball.ballCount do
+        if self.powerBalls[i].y < VIRTUAL_HEIGHT then
+            ballOnScreen = true
+        end
+    end    
+
+    if self.ball.y >= VIRTUAL_HEIGHT and not ballOnScreen then  
         self.health = self.health - 1
         gSounds['hurt']:play()
 
