@@ -66,7 +66,7 @@ function PlayState:update(dt)
     -- update the Timer
     self.brick.timer = self.brick.timer + dt
     
-
+    print(self.powerup.inPlay)
     print(self.brick.timer)
     if self.brick.timer >= 3 then
         self.powerup.inPlay = true 
@@ -113,7 +113,9 @@ function PlayState:update(dt)
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
             -- reset the brick timer
-            self.brick.timer = 0
+            if not self.powerup.inPlay then
+                self.brick.timer = 0
+            end
 
             -- trigger the brick's hit function, which removes it from play
             brick:hit()
