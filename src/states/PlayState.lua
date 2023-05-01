@@ -38,7 +38,7 @@ function PlayState:enter(params)
 
     -- init new powerup
     self.powerup = Powerup()
-    self.powerup.x = math.random(0, VIRTUAL_WIDTH)
+    self.powerup.x = math.random(16, VIRTUAL_WIDTH - 16)
     self.powerup.y = math.random(0,50)
 end
 
@@ -60,14 +60,7 @@ function PlayState:update(dt)
     self.paddle:update(dt)
     self.ball:update(dt)
 
-    brickTimer = self:timeElapsed()
-    print(brickTimer)
-
-    if brickTimer >= 1 then
-        self.powerup.inPlay = true 
-        self.powerup:update(dt)
-        self.powerup.dy = 40;
-    end
+    print(self.powerup.inPlay)
 
     if self.ball:collides(self.paddle) then
         -- raise ball above paddle in case it goes below it, then reverse dy
@@ -107,7 +100,7 @@ function PlayState:update(dt)
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
             -- trigger the brick's hit function, which removes it from play
-            brick:hit()
+            brick:hit(self.powerup.inPlay)
 
             -- if we have enough points, recover a point of health
             if self.score > self.recoverPoints then
@@ -216,11 +209,20 @@ function PlayState:update(dt)
 
     -- for rendering particle systems
     for k, brick in pairs(self.bricks) do
-        brick:update(dt)
+        brick:update(dt, self.powerup.inPlay)
     end
 
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
+    end
+
+    brickTimer = self:timeElapsed()
+    print(brickTimer)
+
+    if brickTimer >= 3 then
+        self.powerup.inPlay = true 
+        self.powerup:update(dt)
+        self.powerup.dy = 40;
     end
 end
 
@@ -239,7 +241,7 @@ function PlayState:render()
     self.ball:render()
 
     brickTimer = self:timeElapsed()
-    if brickTimer >= 1 then
+    if brickTimer >= 3 then
         self.powerup:render()
     end
 
