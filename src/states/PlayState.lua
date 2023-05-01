@@ -41,6 +41,17 @@ function PlayState:enter(params)
     self.powerup.x = math.random(0, VIRTUAL_WIDTH)
     self.powerup.y = math.random(0,50)
 
+    -- init two balls which will be used after powerup hit
+    self.powerBall1 = Ball()
+    self.powerBall1.skin = math.random(7)
+
+    self.powerBall2 = Ball()
+    self.powerBall2.skin = math.random(7)
+
+    -- give new balls random initial velocity
+    self.powerBall1.dx = math.random(-200, 200)
+    self.powerBall2.dy = math.random(-50, -60)
+
     -- init new bricks
     self.brick = Brick()
 end
@@ -62,6 +73,7 @@ function PlayState:update(dt)
     -- update positions based on velocity
     self.paddle:update(dt)
     self.ball:update(dt)
+
 
     -- update the Timer
     self.brick.timer = self.brick.timer + dt
@@ -98,6 +110,10 @@ function PlayState:update(dt)
     -- detect collision of powerup with the paddle
     if self.powerup:collides(self.paddle) then
         gSounds['powerup']:play()
+        -- If the powerup is hit the update positions of the spawned balls based on velocity
+        self.powerBall1:update(dt)
+        self.powerBall2:update(dt)
+
         self.brick.timer = 0
         self.powerup:reset()
     end
@@ -220,7 +236,7 @@ function PlayState:update(dt)
         end
     end
 
-    -- if powerup goes below bounds, revert to serve state and decrease health
+    -- if powerup goes below bounds, reset it
     if self.powerup.y >= VIRTUAL_HEIGHT then
         self.brick.timer = 0 
         self.powerup:reset()
@@ -234,6 +250,8 @@ function PlayState:update(dt)
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end
+
+
 end
 
 function PlayState:render()
@@ -249,6 +267,16 @@ function PlayState:render()
 
     self.paddle:render()
     self.ball:render()
+
+    -- check for collision and render
+    -- detect collision of powerup with the paddle
+    if self.powerup:collides(self.paddle) then
+        -- If the powerup is hit then spawn balls
+        self.powerBall1:render()
+        self.powerBall2:render()
+    end
+
+
 
     if self.brick.timer >= 3 then
         self.powerup:render()

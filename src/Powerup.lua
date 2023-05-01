@@ -24,7 +24,6 @@ function Powerup:init(x,y)
     self.dy = 0
 
     self.inPlay = false
-    self.PowerupInPlay = false
 end
 
 function Powerup:collides(target)
@@ -40,13 +39,13 @@ function Powerup:collides(target)
 end
 
 function Powerup:reset()
+    
     self.x = math.random(16, VIRTUAL_WIDTH - 16)
     self.y = math.random(0, 50)
     self.dy = 0
     print("reset")
 
     self.inPlay = false
-    self.PowerupInPlay = false
 end
 
 function Powerup:update(dt)
