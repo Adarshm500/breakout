@@ -133,7 +133,6 @@ function Brick:hit()
 end
 
 function Brick:update(dt)
-    self.timer = self.timer + dt
     self.psystem:update(dt)
 end
 

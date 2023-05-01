@@ -73,7 +73,6 @@ The problem:
 The Solution:
     1.Timer should stop if and only if the powerup is off the screen then inplay is false and hence it should reset the timer to 0.
         1.1 more option in the timeElapsed function
-        1.2 
 
     2. the timer should not be triggered if the Powerup is on the screen
         2.1 we can go to brick collision for this in the update function

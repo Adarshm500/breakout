@@ -64,7 +64,8 @@ function PlayState:update(dt)
     self.ball:update(dt)
 
     -- update the Timer
-    self.brick:update(dt)
+    self.brick.timer = self.brick.timer + dt
+    
 
     print(self.brick.timer)
     if self.brick.timer >= 3 then
@@ -97,6 +98,7 @@ function PlayState:update(dt)
     -- detect collision of powerup with the paddle
     if self.powerup:collides(self.paddle) then
         gSounds['powerup']:play()
+        self.brick.timer = 0
         self.powerup:reset()
     end
 
@@ -218,6 +220,7 @@ function PlayState:update(dt)
 
     -- if powerup goes below bounds, revert to serve state and decrease health
     if self.powerup.y >= VIRTUAL_HEIGHT then
+        self.brick.timer = 0 
         self.powerup:reset()
     end
 
