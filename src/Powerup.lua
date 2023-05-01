@@ -68,4 +68,17 @@ The ball spawn
         * Once the powerup hits the paddle then increment the ball count by 2
         * Then using a for loop update as many balls as the ballCount
         * Do same thing with the render
+
+        when total ball count was 10 then
+            last ball count = 1
+            oldBallCount = 2
+        end
+        when total ball count is 16 then
+            last ball count = 7
+            oldBallCount = 8
+        end
+        when total ball count is 18 then 
+            total ball count is 8
+            last ball count = 1
+            oldBallCount = 2
 ]]

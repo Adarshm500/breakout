@@ -41,6 +41,12 @@ PlayState = Class{__includes = BaseState}
     self.powerup.x = math.random(self.powerup.width, VIRTUAL_WIDTH - self.powerup.width)
     self.powerup.y = math.random(0,50)
 
+    -- init a variable to store the number of total balls that will be initiated 
+    self.totalBallCount = 8
+
+    -- init a variable to store the number of variable that have been reset
+    self.lastBallCount = 0
+
     -- init balls which will be used after powerup hit
     -- table to store powerBalls
     self.powerBalls = {}
@@ -109,6 +115,40 @@ function PlayState:update(dt)
         -- If the powerup is hit then paddle has power
         self.ball.ballCount = self.ball.ballCount + 2
 
+        -- if the ballCount goes beyond 8 then reset the 2 balls from earlier
+        if self.ball.ballCount > 8 then
+            -- total balls yet spawned
+            self.totalBallCount = self.totalBallCount + 2
+            -- if total balls are greater then 16 then reset it to 8
+            print(self.totalBallCount)
+            if self.totalBallCount > 16 then
+                self.totalBallCount = 10
+                self.lastBallCount = 0
+            end
+            -- if oldBallCount exist then last balls count will be that
+            if oldBallCount then
+                self.lastBallCount = oldBallCount
+            end
+
+            -- stores the number of balls that are the old ones and is reset
+            oldBallCount = self.totalBallCount - 8
+            -- reset ballcount to 8
+            self.ball.ballCount = 8
+
+            -- reset the old balls
+            for i = self.lastBallCount + 1, oldBallCount do
+                self.powerBalls[i].x = VIRTUAL_WIDTH / 2
+                self.powerBalls[i].y = VIRTUAL_HEIGHT - 48
+        
+                -- give new balls random initial velocity
+                if i % 2 == 0 then
+                    self.powerBalls[i].dx = math.random(-200, 0)
+                end
+                self.powerBalls[i].dx = math.random(0, 200)
+                self.powerBalls[i].dy = math.random(-50, -60)
+            end
+        end
+
         self.brick.timer = 0
         self.powerup:reset()
     end
@@ -134,7 +174,12 @@ function PlayState:update(dt)
     for i = 1, self.ball.ballCount do
         if self.powerBalls[i].y < VIRTUAL_HEIGHT then
             ballOnScreen = true
+        else
+            self.powerBalls[i].y = VIRTUAL_HEIGHT + 40
+            self.powerBalls[i].dy = 0
+            self.powerBalls[i].dx = 0
         end
+
     end    
 
     if self.ball.y >= VIRTUAL_HEIGHT and not ballOnScreen then  
