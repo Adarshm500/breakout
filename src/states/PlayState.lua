@@ -16,8 +16,6 @@
 
 PlayState = Class{__includes = BaseState}
 
--- init a variable to store the last level score
-lastLevelScore = 0
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
@@ -77,6 +75,11 @@ function PlayState:enter(params)
 
     -- init a variable to store the current level score
     levelScore = 0
+
+    -- init a variable to store the last level score
+    if self.level == 1 and self.score == 0 then
+        lastLevelScore = 0
+    end
     
     -- init new bricks
     self.brick = Brick()
@@ -185,9 +188,12 @@ function PlayState:update(dt)
         if levelScore >= i * 500 and not hasIncremented[i] then
             if self.paddle.size < 4 then
                 self.paddle.size = self.paddle.size + 1
+                gSounds['paddle-grow']:play()
             end
             hasIncremented[i] = true
         end
+        -- Width of the paddle according to its size
+        self.paddle.width = self.paddle.size * 32
     end
 
     -- if ball goes below bounds, revert to serve state and decrease health
@@ -207,9 +213,6 @@ function PlayState:update(dt)
 
     if self.ball.y >= VIRTUAL_HEIGHT and not ballOnScreen then  
         self.health = self.health - 1
-        if self.paddle.size > 1 then
-            self.paddle.size = self.paddle.size - 1
-        end 
         gSounds['hurt']:play()
 
         -- Decrease paddle size by one
@@ -306,10 +309,6 @@ end
 function PlayState:checkCollision(ball, paddle)
     -- Check collision of ball with the paddle
     if ball:collides(paddle) then
-        -- Width of the paddle according to its size
-        for i = 1, 4 do
-            paddle.width = self.paddle.size * 32
-        end
             
         -- raise ball above paddle in case it goes below it, then reverse dy
         ball.y = paddle.y - 8
