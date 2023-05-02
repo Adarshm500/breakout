@@ -213,12 +213,15 @@ function PlayState:update(dt)
         gSounds['hurt']:play()
 
         -- Decrease paddle size by one
-        -- lastLevelScore = self.score
+        lastLevelScore = self.score
         -- for i = 1, 3 do
         --     hasIncremented[i] = false
         --     self.paddle.size = 2
         -- end
-        -- hasIncremented[self.paddle.size - 1] = false
+        if self.paddle.size > 1 then
+            self.paddle.size = self.paddle.size - 1
+        end
+        hasIncremented[self.paddle.size - 1] = false
 
         if self.health == 0 then
             gStateMachine:change('game-over', {
