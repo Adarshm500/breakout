@@ -167,6 +167,13 @@ function PlayState:update(dt)
         end
     end
 
+    -- if the player scores more than 500 then increase the paddle size
+    if self.score > 500 then
+        if self.paddle.size < 4 then
+            self.paddle.size = self.paddle.size + 1
+        end
+    end
+
     -- if ball goes below bounds, revert to serve state and decrease health
     -- update: if every ball goes below bound then 
 
@@ -184,6 +191,9 @@ function PlayState:update(dt)
 
     if self.ball.y >= VIRTUAL_HEIGHT and not ballOnScreen then  
         self.health = self.health - 1
+        if self.paddle.size > 1 then
+            self.paddle.size = self.paddle.size - 1
+        end 
         gSounds['hurt']:play()
 
         if self.health == 0 then
@@ -269,6 +279,11 @@ end
 function PlayState:checkCollision(ball, paddle)
     -- Check collision of ball with the paddle
     if ball:collides(paddle) then
+        -- Width of the paddle according to its size
+        for i = 1, 4 do
+            paddle.width = self.paddle.size * 32
+        end
+            
         -- raise ball above paddle in case it goes below it, then reverse dy
         ball.y = paddle.y - 8
         ball.dy = -ball.dy
