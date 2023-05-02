@@ -16,11 +16,13 @@
 
 PlayState = Class{__includes = BaseState}
 
+-- init a variable to store the last level score
+lastLevelScore = 0
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
     ]]
-    function PlayState:enter(params)
+function PlayState:enter(params)
 
     self.paddle = params.paddle
     self.bricks = params.bricks
@@ -70,6 +72,12 @@ PlayState = Class{__includes = BaseState}
           
     end
 
+    -- init a table to check if the paddle is incremented once
+    hasIncremented = {false, false, false, false}
+
+    -- init a variable to store the current level score
+    levelScore = 0
+    
     -- init new bricks
     self.brick = Brick()
 end
@@ -168,9 +176,17 @@ function PlayState:update(dt)
     end
 
     -- if the player scores more than 500 then increase the paddle size
-    if self.score > 500 then
-        if self.paddle.size < 4 then
-            self.paddle.size = self.paddle.size + 1
+    -- check if particle has crossed the threshold and increment variable if it hasn't been incremented yet
+    levelScore = self.score - lastLevelScore
+    print("last:"..lastLevelScore)
+    print("score: "..self.score)
+    print("level:"..levelScore)
+    for i = 1, 4 do
+        if levelScore >= i * 500 and not hasIncremented[i] then
+            if self.paddle.size < 4 then
+                self.paddle.size = self.paddle.size + 1
+            end
+            hasIncremented[i] = true
         end
     end
 
@@ -187,7 +203,7 @@ function PlayState:update(dt)
             self.powerBalls[i].dy = 0
             self.powerBalls[i].dx = 0
         end
-    end    
+    end
 
     if self.ball.y >= VIRTUAL_HEIGHT and not ballOnScreen then  
         self.health = self.health - 1
@@ -195,6 +211,14 @@ function PlayState:update(dt)
             self.paddle.size = self.paddle.size - 1
         end 
         gSounds['hurt']:play()
+
+        -- Decrease paddle size by one
+        -- lastLevelScore = self.score
+        -- for i = 1, 3 do
+        --     hasIncremented[i] = false
+        --     self.paddle.size = 2
+        -- end
+        -- hasIncremented[self.paddle.size - 1] = false
 
         if self.health == 0 then
             gStateMachine:change('game-over', {
@@ -335,6 +359,11 @@ function PlayState:checkCollision(ball, paddle)
 
             -- go to our victory screen if there are no more bricks left
             if self:checkVictory() then
+                lastLevelScore = self.score
+                for i = 1, 3 do
+                    hasIncremented[i] = false
+                    self.paddle.size = 2
+                end
                 gSounds['victory']:play()
 
                 gStateMachine:change('victory', {
