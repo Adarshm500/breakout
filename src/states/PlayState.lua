@@ -41,6 +41,13 @@ function PlayState:enter(params)
     self.powerup.x = math.random(self.powerup.width, VIRTUAL_WIDTH - self.powerup.width)
     self.powerup.y = math.random(0,50)
 
+    
+    -- init a variable to store whether the powerup has been randomized currently
+    powerupRandomized = false
+
+    --initiate a randomized timer to spawn the powerup
+    self.randomizedTimer = 3
+
     -- init a variable to store the number of total balls that will be initiated 
     self.totalBallCount = 8
 
@@ -103,16 +110,21 @@ function PlayState:update(dt)
     self.paddle:update(dt)
     self.ball:update(dt)
 
-
     -- update the Timer
     self.brick.timer = self.brick.timer + dt
+
+    if not powerupRandomized then
+        self.randomizedTimer = math.random(3, 6)
+        powerupRandomized = true
+    end
     
-    if self.brick.timer >= 3 then
+    if self.brick.timer >= self.randomizedTimer then
         self.powerup.inPlay = true 
         self.powerup:update(dt)
         self.powerup.dy = 40;
     end
 
+    print(self.randomizedTimer)
     -- Check for collision of balls with paddle
     self:checkCollision(self.ball, self.paddle)
     for i = 1, self.ball.ballCount do
@@ -122,8 +134,9 @@ function PlayState:update(dt)
     -- detect collision of powerup with the paddle
     if self.powerup:collides(self.paddle) then
         gSounds['powerup']:play()
+        powerupRandomized = false
 
-        -- If the powerup is hit then paddle has power
+        -- increase the overall ballCount
         self.ball.ballCount = self.ball.ballCount + 2
 
         -- if the ballCount goes beyond 8 then reset the 2 balls from earlier
@@ -171,6 +184,7 @@ function PlayState:update(dt)
         self.powerup:reset()
     end
 
+    -- update the balls on the screen
     if self.ball.ballCount >= 2 then
         for i = 1,self.ball.ballCount do
             self.powerBalls[i]:update(dt)
@@ -205,7 +219,8 @@ function PlayState:update(dt)
         if self.powerBalls[i].y < VIRTUAL_HEIGHT then
             ballOnScreen = true
         else
-            self.powerBalls[i].y = VIRTUAL_HEIGHT + 40
+            self.powerBalls[i].x = VIRTUAL_WIDTH / 2
+            self.powerBalls[i].y = VIRTUAL_HEIGHT + 10
             self.powerBalls[i].dy = 0
             self.powerBalls[i].dx = 0
         end
@@ -246,6 +261,7 @@ function PlayState:update(dt)
 
     -- if powerup goes below bounds, reset it
     if self.powerup.y >= VIRTUAL_HEIGHT then
+        powerupRandomized = false
         self.brick.timer = 0 
         self.powerup:reset()
     end
@@ -282,7 +298,8 @@ function PlayState:render()
         end
     end
 
-    if self.brick.timer >= 3 then
+    -- randomly generate after some time at least 3 seconds later
+    if self.brick.timer >= self.randomizedTimer then
         self.powerup:render()
     end
 
