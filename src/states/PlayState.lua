@@ -36,17 +36,21 @@ function PlayState:enter(params)
     self.ball.dx = math.random(-200, 200)
     self.ball.dy = math.random(-50, -60)
 
-    -- init new powerup
-    self.powerup = Powerup()
-    self.powerup.x = math.random(self.powerup.width, VIRTUAL_WIDTH - self.powerup.width)
-    self.powerup.y = math.random(0,50)
-
-    
+    --init two powers currently 1 and 2; 1 is for the ballPowerup and 2 is for the key powerup
+    self.powerup = {}
+    for i = 1, 2 do
+        -- init powerups
+        self.powerup[i] = Powerup()
+        self.powerup[i].x = math.random(self.powerup[i].width, VIRTUAL_WIDTH - self.powerup[i].width)
+        self.powerup[i].y = math.random(0,50)
+        self.powerup[i].power = 8 + i
+    end
+ 
     -- init a variable to store whether the powerup has been randomized currently
     powerupRandomized = false
 
     --initiate a randomized timer to spawn the powerup
-    self.randomizedTimer = 3
+    self.randomizedTimer = {3, 4} -- 3 and 4 are the default times
 
     -- init a variable to store the number of total balls that will be initiated 
     self.totalBallCount = 8
@@ -111,20 +115,29 @@ function PlayState:update(dt)
     self.ball:update(dt)
 
     -- update the Timer
-    self.brick.timer = self.brick.timer + dt
+    for i = 1, 2 do
+        self.brick.timer[i] = self.brick.timer[i] + dt
+    end
 
+    -- randomize the ballPowerup 
     if not powerupRandomized then
-        self.randomizedTimer = math.random(3, 6)
-        powerupRandomized = true
+        for i = 1, 2 do
+            self.randomizedTimer[i] = math.random(1, 3)
+            powerupRandomized = true
+        end
     end
     
-    if self.brick.timer >= self.randomizedTimer then
-        self.powerup.inPlay = true 
-        self.powerup:update(dt)
-        self.powerup.dy = 40;
+    -- update the powerup according to the timer
+    for i = 1,2 do
+        if self.brick.timer[i] >= self.randomizedTimer[i] then
+            self.powerup[i].inPlay = true 
+            self.powerup[i]:update(dt)
+            self.powerup[i].dy = 40;
+        end
     end
 
-    print(self.randomizedTimer)
+    print(self.randomizedTimer[1])
+    print(self.randomizedTimer[2])
     -- Check for collision of balls with paddle
     self:checkCollision(self.ball, self.paddle)
     for i = 1, self.ball.ballCount do
@@ -132,7 +145,7 @@ function PlayState:update(dt)
     end
 
     -- detect collision of powerup with the paddle
-    if self.powerup:collides(self.paddle) then
+    if self.powerup[1]:collides(self.paddle) then
         gSounds['powerup']:play()
         powerupRandomized = false
 
@@ -180,8 +193,8 @@ function PlayState:update(dt)
             end
         end
 
-        self.brick.timer = 0
-        self.powerup:reset()
+        self.brick.timer[1] = 0
+        self.powerup[1]:reset()
     end
 
     -- update the balls on the screen
@@ -198,6 +211,8 @@ function PlayState:update(dt)
     print("last:"..lastLevelScore)
     print("score: "..self.score)
     print("level:"..levelScore)
+    print("timer1:"..self.brick.timer[1])
+    print("timer1:"..self.brick.timer[2])
     for i = 1, 4 do
         if levelScore >= i * 500 and not hasIncremented[i] then
             if self.paddle.size < 4 then
@@ -259,11 +274,13 @@ function PlayState:update(dt)
         end
     end
 
-    -- if powerup goes below bounds, reset it
-    if self.powerup.y >= VIRTUAL_HEIGHT then
-        powerupRandomized = false
-        self.brick.timer = 0 
-        self.powerup:reset()
+    -- if powerup goes below bound, reset it
+    for i = 1, 2 do
+        if self.powerup[i].y >= VIRTUAL_HEIGHT then
+            powerupRandomized = false
+            self.brick.timer[i] = 0 
+            self.powerup[i]:reset()
+        end
     end
 
     -- for rendering particle systems
@@ -299,8 +316,10 @@ function PlayState:render()
     end
 
     -- randomly generate after some time at least 3 seconds later
-    if self.brick.timer >= self.randomizedTimer then
-        self.powerup:render()
+    for i = 1, 2 do
+        if self.brick.timer[i] >= self.randomizedTimer[i] then
+            self.powerup[i]:render()
+        end
     end
 
     renderScore(self.score)
@@ -357,8 +376,10 @@ function PlayState:checkCollision(ball, paddle)
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
             -- reset the brick timer
-            if not self.powerup.inPlay then
-                self.brick.timer = 0
+            for i = 1,2 do
+                if not self.powerup[i].inplay then
+                    self.brick.timer[i] = 0
+                end
             end
 
             -- trigger the brick's hit function, which removes it from play

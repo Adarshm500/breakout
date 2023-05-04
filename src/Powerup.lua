@@ -20,6 +20,8 @@ function Powerup:init(x,y)
     self.y = y
     self.height = 16
     self.width = 16
+    self.power = 9
+
 
     self.dy = 0
 
@@ -55,7 +57,7 @@ end
 function Powerup:render()
     -- print(gFrames['powerups'][9])
     if self.inPlay then
-        love.graphics.draw(gTextures['main'],gFrames['powerups'][9], self.x, self.y)
+        love.graphics.draw(gTextures['main'],gFrames['powerups'][self.power], self.x, self.y)
     end
 end
 

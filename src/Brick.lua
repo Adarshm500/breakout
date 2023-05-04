@@ -66,7 +66,7 @@ function Brick:init(x, y)
     self.inPlay = true
 
     -- add a timer to track the last brick hit
-    self.timer = 0
+    self.timer = {0, 0}
 
     -- particle system belonging to the brick, emitted on hit
     self.psystem = love.graphics.newParticleSystem(gTextures['particle'], 64)

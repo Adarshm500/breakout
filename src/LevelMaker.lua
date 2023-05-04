@@ -35,7 +35,7 @@ function LevelMaker.createMap(level)
     -- a variable to store if the locked brick has been generated
     lockedbrick = false
     -- should the current level have a locked brick
-    lockBrickLevel = math.random(2) == 1 and true or false
+    lockBrickLevel = math.random(4) == 4 and false or true
 
     -- randomly choose the number of rows
     local numRows = math.random(1, 5)
@@ -102,7 +102,7 @@ function LevelMaker.createMap(level)
             -- randomly generating the locked brick
             if not lockedbrick and lockBrickLevel then
                 print("print")
-                b.lock = math.random(4) == 1 and true or false
+                b.lock = math.random(7) == 1 and true or false
                 if b.lock then
                     lockedbrick = true
                 end
