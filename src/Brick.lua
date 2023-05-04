@@ -54,6 +54,8 @@ function Brick:init(x, y)
     -- used for coloring and score calculation
     self.tier = 0
     self.color = 1
+    -- used to store locked block
+    self.lock = false
     
     self.x = x
     self.y = y
@@ -143,6 +145,10 @@ function Brick:render()
             -- to draw the correct tier and color brick onto the screen
             gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
             self.x, self.y)
+        if self.lock then
+            love.graphics.draw(gTextures['main'],
+                gFrames['lockbrick'],self.x, self.y)
+        end
     end
 end
 
@@ -153,3 +159,10 @@ end
 function Brick:renderParticles()
     love.graphics.draw(self.psystem, self.x + 16, self.y + 8)
 end
+
+--[[
+    problem:
+    need to make a brick such that it is generated randomly and only generated once
+        1. generate a brick randomly
+            1.1 try to generate randomly inside the two loops so that every brick is chosen randomly
+]]
