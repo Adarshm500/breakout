@@ -44,9 +44,9 @@ end
 
 function Paddle:update(dt)
     -- keyboard input
-    if love.keyboard.isDown('left') then
+    if love.keyboard.isDown('left') or love.keyboard.isDown('a') then
         self.dx = -PADDLE_SPEED
-    elseif love.keyboard.isDown('right') then
+    elseif love.keyboard.isDown('right') or love.keyboard.isDown('d') then
         self.dx = PADDLE_SPEED
     else
         self.dx = 0

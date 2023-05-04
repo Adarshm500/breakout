@@ -165,4 +165,8 @@ end
     need to make a brick such that it is generated randomly and only generated once
         1. generate a brick randomly
             1.1 try to generate randomly inside the two loops so that every brick is chosen randomly
+        2. a variable should store whether the locked brick is generated or not.
+            2.1 if the locked brick is generated then don't generate it again
+    also it should not necessarily generate in every level so we have to randomly assign if the level should have a locked brick
+                
 ]]

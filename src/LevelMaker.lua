@@ -32,6 +32,10 @@ LevelMaker = Class{}
 ]]
 function LevelMaker.createMap(level)
     local bricks = {}
+    -- a variable to store if the locked brick has been generated
+    lockedbrick = false
+    -- should the current level have a locked brick
+    lockBrickLevel = math.random(2) == 1 and true or false
 
     -- randomly choose the number of rows
     local numRows = math.random(1, 5)
@@ -96,7 +100,13 @@ function LevelMaker.createMap(level)
             )
 
             -- randomly generating the locked brick
-            b.lock = math.random(2) == 1 and true or false
+            if not lockedbrick and lockBrickLevel then
+                print("print")
+                b.lock = math.random(4) == 1 and true or false
+                if b.lock then
+                    lockedbrick = true
+                end
+            end
 
             -- if we're alternating, figure out which color/tier we're on
             if alternatePattern and alternateFlag then
