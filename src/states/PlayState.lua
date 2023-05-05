@@ -122,7 +122,7 @@ function PlayState:update(dt)
     -- randomize the ballPowerup 
     if not powerupRandomized then
         for i = 1, 2 do
-            self.randomizedTimer[i] = math.random(1, 3)
+            self.randomizedTimer[i] = math.random(2, 4)
             powerupRandomized = true
         end
     end
@@ -157,7 +157,6 @@ function PlayState:update(dt)
             -- total balls yet spawned
             self.totalBallCount = self.totalBallCount + 2
             -- if total balls are greater then 16 then reset it to 8
-            print(self.totalBallCount)
             if self.totalBallCount > 16 then
                 self.totalBallCount = 10
                 self.lastBallCount = 0
@@ -201,18 +200,16 @@ function PlayState:update(dt)
     if self.ball.ballCount >= 2 then
         for i = 1,self.ball.ballCount do
             self.powerBalls[i]:update(dt)
-            print(i)
         end
     end
+
+    for i = 1, 2 do
+        print(self.brick.timer[i])
+    end 
 
     -- if the player scores more than 500 then increase the paddle size
     -- check if particle has crossed the threshold and increment variable if it hasn't been incremented yet
     levelScore = self.score - lastLevelScore
-    print("last:"..lastLevelScore)
-    print("score: "..self.score)
-    print("level:"..levelScore)
-    print("timer1:"..self.brick.timer[1])
-    print("timer1:"..self.brick.timer[2])
     for i = 1, 4 do
         if levelScore >= i * 500 and not hasIncremented[i] then
             if self.paddle.size < 4 then
@@ -274,7 +271,7 @@ function PlayState:update(dt)
         end
     end
 
-    -- if powerup goes below bound, reset it
+    -- if powerup goes below bounds, reset it
     for i = 1, 2 do
         if self.powerup[i].y >= VIRTUAL_HEIGHT then
             powerupRandomized = false
@@ -375,12 +372,44 @@ function PlayState:checkCollision(ball, paddle)
             -- add to score
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
-            -- reset the brick timer
-            for i = 1,2 do
-                if not self.powerup[i].inplay then
-                    self.brick.timer[i] = 0
-                end
+            -- -- reset the brick timer
+            if not self.powerup[1].inPlay  then
+                self.brick.timer[1] = 0
             end
+            --[[
+                when the reset is on only for 1 then:
+                    1. No powerup on the screen: it resets the timer of powerball: works as expected
+                    2. Both powerups on the screen:
+                    no effect: works as expected
+                    3. if only powerkey on screen:
+                    it resets the timer of the powerball: works as expected
+                    4. if only powerball on screen:
+                    no effect: works as expected
+            ]]
+
+            if not self.powerup[2].inPlay then
+                self.brick.timer[2] = 0
+            end
+            --[[
+                when the reset is on only for 2 then:
+                    1. No powerup on the screen: it resets the timer of powerkey: works as expected
+                    2. Both powerups on the screen: it resets the timer of powerkey: no ball should be affected, problem with the powerkey timer
+                    3. if only powerkey on screen:
+                    first it resets the powekey then it sees that there are no powerups so it resets the ball too: it should not reset the timer
+                    4. if only powerball on screen:
+                    it reset the powerkey timer: works as expected
+            ]]
+
+            --[[
+                when the reset is on for both then
+                    1. No powerup on the screen: it resets the timer of powerkey: works as expected
+                    2. Both powerups on the screen: it resets the timer of powerkey: no powerup should be affected, problem with the powerkey timer
+                    3. if only powerkey on screen:
+                    first it resets the powekey then it sees that there are no powerups so it resets the ball too: it should not reset the timer
+                    4. if only powerball on screen:
+                    the timer is reset for powerkey: works as expected
+                end
+            ]]
 
             -- trigger the brick's hit function, which removes it from play
             brick:hit()

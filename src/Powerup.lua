@@ -13,15 +13,12 @@
 
 Powerup = Class{}
 
-local GRAVITY = 1
-
 function Powerup:init(x,y)
     self.x = x
     self.y = y
     self.height = 16
     self.width = 16
     self.power = 9
-
 
     self.dy = 0
 

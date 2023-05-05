@@ -101,7 +101,6 @@ function LevelMaker.createMap(level)
 
             -- randomly generating the locked brick
             if not lockedbrick and lockBrickLevel then
-                print("print")
                 b.lock = math.random(7) == 1 and true or false
                 if b.lock then
                     lockedbrick = true
