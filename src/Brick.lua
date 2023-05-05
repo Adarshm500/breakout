@@ -140,15 +140,17 @@ end
 
 function Brick:render()
     if self.inPlay then
+        if self.lock then
+            love.graphics.draw(gTextures['main'],
+            gFrames['lockbrick'],self.x, self.y)
+            goto continue
+        end
         love.graphics.draw(gTextures['main'], 
             -- multiply color by 4 (-1) to get our color offset, then add tier to that
             -- to draw the correct tier and color brick onto the screen
             gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
             self.x, self.y)
-        if self.lock then
-            love.graphics.draw(gTextures['main'],
-                gFrames['lockbrick'],self.x, self.y)
-        end
+        ::continue::
     end
 end
 

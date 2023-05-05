@@ -42,12 +42,17 @@ function PlayState:enter(params)
         -- init powerups
         self.powerup[i] = Powerup()
         self.powerup[i].x = math.random(self.powerup[i].width, VIRTUAL_WIDTH - self.powerup[i].width)
-        self.powerup[i].y = math.random(0,50)
         self.powerup[i].power = 8 + i
     end
+    self.powerup[1].y = math.random(0,50)
+    self.powerup[2].y = math.random(10,30)
+
+    
+    -- initiate a unlocked variable to store whether the key is obtain for the locked brick
+    self.locked = true
  
     -- init a variable to store whether the powerup has been randomized currently
-    powerupRandomized = false
+    powerupRandomized = {false, false}
 
     --initiate a randomized timer to spawn the powerup
     self.randomizedTimer = {3, 4} -- 3 and 4 are the default times
@@ -119,12 +124,17 @@ function PlayState:update(dt)
         self.brick.timer[i] = self.brick.timer[i] + dt
     end
 
-    -- randomize the ballPowerup 
-    if not powerupRandomized then
-        for i = 1, 2 do
-            self.randomizedTimer[i] = math.random(2, 4)
-            powerupRandomized = true
-        end
+    -- randomize the ballPowerup and powerkey
+    -- for ballpower
+    if not powerupRandomized[1] then
+        self.randomizedTimer[1] = math.random(3, 6)
+        powerupRandomized[1] = true
+    end
+
+    -- for powerkey
+    if not powerupRandomized[2] then
+        self.randomizedTimer[2] = math.random(4, 7)
+        powerupRandomized[2] = true
     end
     
     -- update the powerup according to the timer
@@ -144,10 +154,10 @@ function PlayState:update(dt)
         self:checkCollision(self.powerBalls[i], self.paddle)
     end
 
-    -- detect collision of powerup with the paddle
+    -- detect collision of ball powerup with the paddle
     if self.powerup[1]:collides(self.paddle) then
         gSounds['powerup']:play()
-        powerupRandomized = false
+        powerupRandomized[1] = false
 
         -- increase the overall ballCount
         self.ball.ballCount = self.ball.ballCount + 2
@@ -194,6 +204,14 @@ function PlayState:update(dt)
 
         self.brick.timer[1] = 0
         self.powerup[1]:reset()
+    end
+    -- detect collision of key powerup with the paddle
+    if self.powerup[2]:collides(self.paddle) then
+        gSounds['powerup']:play()
+        powerupRandomized[2] = false
+
+        self.brick.timer[2] = 0
+        self.powerup[2]:reset()
     end
 
     -- update the balls on the screen
@@ -274,7 +292,7 @@ function PlayState:update(dt)
     -- if powerup goes below bounds, reset it
     for i = 1, 2 do
         if self.powerup[i].y >= VIRTUAL_HEIGHT then
-            powerupRandomized = false
+            powerupRandomized[i] = false
             self.brick.timer[i] = 0 
             self.powerup[i]:reset()
         end
@@ -373,43 +391,11 @@ function PlayState:checkCollision(ball, paddle)
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
             -- -- reset the brick timer
-            if not self.powerup[1].inPlay  then
-                self.brick.timer[1] = 0
-            end
-            --[[
-                when the reset is on only for 1 then:
-                    1. No powerup on the screen: it resets the timer of powerball: works as expected
-                    2. Both powerups on the screen:
-                    no effect: works as expected
-                    3. if only powerkey on screen:
-                    it resets the timer of the powerball: works as expected
-                    4. if only powerball on screen:
-                    no effect: works as expected
-            ]]
-
-            if not self.powerup[2].inPlay then
-                self.brick.timer[2] = 0
-            end
-            --[[
-                when the reset is on only for 2 then:
-                    1. No powerup on the screen: it resets the timer of powerkey: works as expected
-                    2. Both powerups on the screen: it resets the timer of powerkey: no ball should be affected, problem with the powerkey timer
-                    3. if only powerkey on screen:
-                    first it resets the powekey then it sees that there are no powerups so it resets the ball too: it should not reset the timer
-                    4. if only powerball on screen:
-                    it reset the powerkey timer: works as expected
-            ]]
-
-            --[[
-                when the reset is on for both then
-                    1. No powerup on the screen: it resets the timer of powerkey: works as expected
-                    2. Both powerups on the screen: it resets the timer of powerkey: no powerup should be affected, problem with the powerkey timer
-                    3. if only powerkey on screen:
-                    first it resets the powekey then it sees that there are no powerups so it resets the ball too: it should not reset the timer
-                    4. if only powerball on screen:
-                    the timer is reset for powerkey: works as expected
+            for i = 1,2 do
+                if not self.powerup[i].inPlay  then
+                    self.brick.timer[i] = 0
                 end
-            ]]
+            end
 
             -- trigger the brick's hit function, which removes it from play
             brick:hit()

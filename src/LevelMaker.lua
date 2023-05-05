@@ -124,6 +124,11 @@ function LevelMaker.createMap(level)
                 b.tier = solidTier
             end 
 
+            if b.lock then
+                b.tier = 0
+                b.color = 1
+            end
+
             table.insert(bricks, b)
 
             -- Lua's version of the 'continue' statement
